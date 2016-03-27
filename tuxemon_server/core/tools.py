@@ -1,7 +1,8 @@
+
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Tuxemon Server
+# Tuxemon
 # Copyright (C) 2016, William Edwards <shadowapex@gmail.com>,
 #                     Benjamin Bean <superman2k5@gmail.com>
 #
@@ -25,12 +26,17 @@
 # William Edwards <shadowapex@gmail.com>
 #
 #
-# tuxemon_headless.py Main game
+# core.tools Tools for Tuxemon Server
 #
 
-from tuxemon_server.core.control import Control
+import time
 
-if __name__ == "__main__":
-    game = Control()
-    game.start()
+class Clock(object):
+    def __init__(self):
+        self.previous = time.time()
 
+    def tick(self):
+        current = time.time()
+        dt = current - self.previous
+        self.previous = current
+        return dt
