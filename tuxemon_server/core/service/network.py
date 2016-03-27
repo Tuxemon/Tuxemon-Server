@@ -36,5 +36,7 @@ class Middleware(_Middleware):
         return True
 
     def event_execute(self, cuuid, euuid, event_data):
+        # Here we need to dynamically execute the appropriate method in
+        # controllers.
         print event_data
         pass
