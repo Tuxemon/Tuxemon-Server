@@ -34,11 +34,17 @@ from tuxemon_server.core import controllers
 class Middleware(_Middleware):
     def event_legal(self, cuuid, euuid, event_data):
         # We need to do authentication checks here for every request.
+
+        # Check to see if we have a function for the requested event type.
+        event_type = event_data["event_type"]
+        if event_type not in controllers.all_functions.keys():
+            return False
+
         return True
 
     def event_execute(self, cuuid, euuid, event_data):
         # Here we need to dynamically execute the appropriate method in
         # controllers.
         event_type = event_data["event_type"]
-        if event_type in controllers.all_functions.keys:
+        if event_type in controllers.all_functions.keys():
             controllers.all_functions[event_type](event_data)
