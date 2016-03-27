@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import core.game.player
+import tuxemon_server.core.game.player
 
 def move_player(event):
     client_id = event["cuuid"]

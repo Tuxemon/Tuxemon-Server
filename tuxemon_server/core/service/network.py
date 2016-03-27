@@ -29,6 +29,7 @@
 #
 
 from neteria.tools import _Middleware
+from tuxemon_server.core import controllers
 
 class Middleware(_Middleware):
     def event_legal(self, cuuid, euuid, event_data):
@@ -38,5 +39,6 @@ class Middleware(_Middleware):
     def event_execute(self, cuuid, euuid, event_data):
         # Here we need to dynamically execute the appropriate method in
         # controllers.
-        print event_data
-        pass
+        event_type = event_data["event_type"]
+        if event_type in controllers.all_functions.keys:
+            controllers.all_functions[event_type](event_data)
