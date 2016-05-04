@@ -155,10 +155,8 @@ class CommandLine(cmd.Cmd):
         look at and manipulate any variables in the application. This can be used to look at this
         instance's "self.app" variable which contains the game object.
 
-        :param None:
-
-        :rtype: None
-        :returns: None
+        Usage:
+            python
 
         """
 
@@ -166,6 +164,18 @@ class CommandLine(cmd.Cmd):
         print("self.pp.pprint(self.__dict__)")
         self.pp.pprint(self.__dict__)
         code.interact(local=locals())
+
+
+    def do_clients(self, line):
+        """Lists all the connected clients
+
+        Usage:
+            clients
+        """
+        for client_id, host in self.app.server.registry.items():
+            print("Client ID: %s, IP: %s, Port: %s" % (client_id, host["host"], host["port"]))
+        print("")
+        print("  Total Clients: %i" % len(self.app.server.registry))
 
 
     def postcmd(self, stop, line):

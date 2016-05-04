@@ -28,9 +28,32 @@
 # tuxemon_headless.py Main game
 #
 
-from tuxemon_server.core.control import Control
+import json
+import time
+from neteria.client import NeteriaClient
 
 if __name__ == "__main__":
-    game = Control()
-    game.start()
+    # Create a client instance.
+    client = NeteriaClient()
+    client.listen()
+
+    # Discover a Neteria Server.
+    print "Discovering Neteria servers..."
+    while not client.registered:
+        client.autodiscover()
+        time.sleep(1)
+    print "Connected!"
+
+    # Send data to the server.
+    exit_cmds = ['quit', 'exit']
+    data = None
+    while data not in exit_cmds:
+        try:
+            data = str(raw_input("> "))
+            data = json.loads(data)
+        except Exception as e:
+            print("Error decoding client command: %s" % str(e))
+            data = ""
+        if data:
+            client.event(data)
 

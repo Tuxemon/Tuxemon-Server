@@ -35,9 +35,15 @@ class Middleware(_Middleware):
     def event_legal(self, cuuid, euuid, event_data):
         # We need to do authentication checks here for every request.
 
+        # Ensure the request has an event_type
+        if "event_type" not in event_data:
+            print("Error: Event type not found in event data: %s" % str(event_data))
+            return False
+
         # Check to see if we have a function for the requested event type.
         event_type = event_data["event_type"]
         if event_type not in controllers.all_functions.keys():
+            print("Error: Event type '%s' not supported" % str(event_type))
             return False
 
         return True
