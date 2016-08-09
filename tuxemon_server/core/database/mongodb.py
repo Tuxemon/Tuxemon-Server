@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Tuxemon
-# Copyright (C) 2014, William Edwards <shadowapex@gmail.com>,
+# Copyright (C) 2016, William Edwards <shadowapex@gmail.com>,
 #                     Benjamin Bean <superman2k5@gmail.com>
 #
 # This file is part of Tuxemon.
@@ -32,26 +32,20 @@
 import logging
 from pymongo import MongoClient
 
+from tuxemon_server.core import database
 from tuxemon_server.core import prepare
 
 # Create a logger for optional handling of debug messages.
 logger = logging.getLogger(__name__)
 logger.debug("%s successfully imported" % __name__)
 
-# Read our database settings from our configuration file.
-mongo_user = prepare.CONFIG.mongodb_user
-mongo_pass = prepare.CONFIG.mongodb_pass
-mongo_host = prepare.CONFIG.mongodb_host
-mongo_port = prepare.CONFIG.mongodb_port
-mongo_ssl = prepare.CONFIG.mongodb_ssl
+class MongoDBDatabase(database.AbstractDatabase):
 
-class MongoDB(object):
-
-    def __init__(self, db_name="tuxemon", username=None, password=None):
-        self.client = MongoClient(mongo_host, ssl=mongo_ssl, port=mongo_port)
+    def configure(self, host, port, username, password, ssl, db_name):
+        self.client = MongoClient(host, ssl=ssl, port=port)
         self.db = self.client[db_name]
-        if mongo_user:
-            self.db.authenticate(mongo_user, mongo_pass)
+        if username:
+            self.db.authenticate(username, password)
 
 
     def aggregate(self, collection_name, pipeline):
@@ -98,4 +92,3 @@ class MongoDB(object):
         else:
             return getattr(self.db, collection_name).save(data)
 
-client = MongoDB()

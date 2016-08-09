@@ -29,9 +29,12 @@
 #
 
 from tuxemon_server.core import prepare
-from tuxemon_server.core.tools import Clock
-from tuxemon_server.core.network import network
+from tuxemon_server.core import transport
+from tuxemon_server.core import parser
+from tuxemon_server.core import database
+from tuxemon_server.core.game import Game
 from tuxemon_server.core.game.cli import CommandLine
+from tuxemon_server.core.tools import Clock
 
 # DEBUG
 #import time
@@ -39,10 +42,27 @@ from tuxemon_server.core.game.cli import CommandLine
 class Control(object):
     def __init__(self):
         prepare.init()
+        self.configure()
         self.clock = Clock()
-        self.server = network.Server()
         self.exit = False
+        self.game = Game()
         self.cli = CommandLine(self)
+
+    def configure(self):
+        # Setup our database, parser, and transport layers.
+        config = prepare.CONFIG
+        db = database.configure(config.db_provider,
+                                config.db_host,
+                                config.db_port,
+                                config.db_user,
+                                config.db_pass,
+                                config.db_ssl,
+                                config.db_database)
+        parse = parser.configure(config.parser)
+        self.transport = transport.configure(config.transport,
+                                             parse,
+                                             config.listen_address,
+                                             config.listen_port)
 
     def main_loop(self):
         dt = self.clock.tick()
@@ -50,7 +70,7 @@ class Control(object):
             self.done = True
 
     def start(self):
-        self.server.listen()
+        self.transport.listen()
         while not self.exit:
             self.main_loop()
 

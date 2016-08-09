@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Tuxemon
-# Copyright (C) 2014, William Edwards <shadowapex@gmail.com>,
+# Copyright (C) 2016, William Edwards <shadowapex@gmail.com>,
 #                     Benjamin Bean <superman2k5@gmail.com>
 #
 # This file is part of Tuxemon.
@@ -25,7 +25,7 @@
 # William Edwards <shadowapex@gmail.com>
 #
 #
-# core.components.config Configuration parser.
+# core.config Configuration parser.
 #
 #
 try:
@@ -35,31 +35,40 @@ except ImportError:
 
 
 class Config(object):
-    """Handles loading of the configuration file for the primary game and map editor.
+    """Handles loading of the configuration file.
 
     """
     def __init__(self, file="server.cfg"):
         self.config = configparser.ConfigParser()
         self.config.read(file)
 
+        # Game configuration
         self.starting_map = self.config.get("game", "starting_map")
         self.starting_position = [int(self.config.get("game", "starting_position_x")),
                                   int(self.config.get("game", "starting_position_y"))]
         self.cli = int(self.config.get("game", "cli_enabled"))
 
+        # Logging configuration
         self.debug_logging = self.config.get("logging", "debug_logging")
         self.debug_level = str(self.config.get("logging", "debug_level")).lower()
         self.loggers = self.config.get("logging", "loggers")
         self.loggers = self.loggers.replace(" ", "").split(",")
 
-        self.listen_address = self.config.get("server", "listen_address")
-        self.listen_port = self.config.get("server", "listen_port")
+        # Transport Configuration
+        self.transport = self.config.get("transport", "provider")
+        self.listen_address = self.config.get("transport", "listen_address")
+        self.listen_port = self.config.get("transport", "listen_port")
 
-        self.mongodb_user = self.config.get("mongodb", "username")
-        self.mongodb_pass = self.config.get("mongodb", "password")
-        self.mongodb_port = self.config.getint("mongodb", "port")
-        self.mongodb_host = self.config.get("mongodb", "host")
-        self.mongodb_ssl = self.config.getboolean("mongodb", "ssl")
-        self.mongodb_database = self.config.get("mongodb", "database")
+        # Parser Configuration
+        self.parser = self.config.get("parser", "provider")
+
+        # Database Configuration
+        self.db_provider = self.config.get("database", "provider")
+        self.db_user = self.config.get("database", "username")
+        self.db_pass = self.config.get("database", "password")
+        self.db_port = self.config.getint("database", "port")
+        self.db_host = self.config.get("database", "host")
+        self.db_ssl = self.config.getboolean("database", "ssl")
+        self.db_database = self.config.get("database", "database")
 
 

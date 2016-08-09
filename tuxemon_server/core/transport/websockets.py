@@ -30,13 +30,17 @@
 
 import asyncio
 import websockets
-from tuxemon_server.core.network import parser
+from tuxemon_server.core import transport
 from tuxemon_server.core import event
 
-class Server(object):
-    def __init__(self, host='localhost', port=8765):
-        self._server = websockets.serve(self.handler, host, port)
+class WebsocketsTransport(transport.AbstractTransport):
+    def __init__(self):
+        self._server = None
         self._connected = set()
+
+    def configure(self, parser, host='localhost', port=8765):
+        self._server = websockets.serve(self.handler, host, port)
+        self._parser = parser
 
     def listen(self):
         asyncio.get_event_loop().run_until_complete(self._server)
@@ -47,7 +51,7 @@ class Server(object):
         self._connected.add(websocket)
         try:
             data = await websocket.recv()
-            parsed_data = parser.parse(data)
+            parsed_data = self._parser.parse(data)
             if parsed_data:
                 print("Data successfully parsed!")
                 response = event.event_pool.dispatch(parsed_data)
@@ -66,7 +70,4 @@ if __name__ == "__main__":
     server = Server()
     server.listen()
 
-#start_server = websockets.serve(hello, 'localhost', 8765)
-#
-#asyncio.get_event_loop().run_until_complete(start_server)
-#asyncio.get_event_loop().run_forever()
+
