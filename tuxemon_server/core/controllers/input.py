@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-import tuxemon_server.core.game.player
+class MoveHandler(object):
+    def __init__(self):
+        self.name = "MOVE"
 
-def move_player(event):
-    client_id = event["cuuid"]
-    direction = event["parameters"]
-    return core.game.player.move(client_id, direction)
+    def invoke(self, event):
+        pass
+

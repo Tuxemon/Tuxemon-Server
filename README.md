@@ -7,9 +7,9 @@ Server for the open source monster-fighting RPG, Tuxemon.
 ## Requirements
 Tuxemon Server uses a number of open source projects to work correctly:
 
-* python - version 2.7+
-* python-pytmx - python library to read Tiled Map Editor's TMX maos.
-* neteria - Game networking framework for Python.
+* python3 - version 3.5+
+* python3-pytmx - python library to read Tiled Map Editor's TMX maps.
+* python3-websockets - websocket library for networking
 
 ## Installation
 

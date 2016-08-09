@@ -28,9 +28,8 @@
 # control.py Controls server functions
 #
 
-from neteria.server import NeteriaServer
-from tuxemon_server.core.service.network import Middleware
 from tuxemon_server.core.tools import Clock
+from tuxemon_server.core.network import network
 from tuxemon_server.core.game.cli import CommandLine
 
 # DEBUG
@@ -39,8 +38,8 @@ from tuxemon_server.core.game.cli import CommandLine
 class Control(object):
     def __init__(self):
         self.clock = Clock()
+        self.server = network.Server()
         self.exit = False
-        self.server = NeteriaServer(Middleware())
         self.cli = CommandLine(self)
 
     def main_loop(self):
@@ -54,44 +53,3 @@ class Control(object):
             self.main_loop()
 
 
-"""Example
-class HeadlessControl(object):
-    def __init__(self):
-        self.done = False
-
-        self.clock = time.clock()
-        self.fps = 60.0
-        self.current_time = 0.0
-
-        # TODO: move out to state manager
-        self.package = "core.states"
-        self.state_dict = dict()
-        self._state_stack = list()
-
-        self.server = networking.TuxemonServer(self)
-        # self.server_thread = threading.Thread(target=self.server)
-        # self.server_thread.start()
-        self.server.server.listen()
-
-        # Set up our game's configuration from the prepare module.
-        self.config = prepare.HEADLESSCONFIG
-
-        # Set up the command line. This provides a full python shell for
-        # troubleshooting. You can view and manipulate any variables in
-        # the game.
-        self.exit = False  # Allow exit from the CLI
-        if self.config.cli:
-            self.cli = cli.CommandLine(self)
-
-    def main_loop(self):
-        # Get the amount of time that has passed since the last frame.
-        # self.time_passed_seconds = time.clock() - self.clock
-        # self.server.update()
-
-        if self.exit:
-            self.done = True
-
-    def main(self):
-        while not self.exit:
-            self.main_loop()
-"""
