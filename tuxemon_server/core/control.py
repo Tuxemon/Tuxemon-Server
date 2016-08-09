@@ -28,6 +28,7 @@
 # control.py Controls server functions
 #
 
+from tuxemon_server.core import prepare
 from tuxemon_server.core.tools import Clock
 from tuxemon_server.core.network import network
 from tuxemon_server.core.game.cli import CommandLine
@@ -37,6 +38,7 @@ from tuxemon_server.core.game.cli import CommandLine
 
 class Control(object):
     def __init__(self):
+        prepare.init()
         self.clock = Clock()
         self.server = network.Server()
         self.exit = False

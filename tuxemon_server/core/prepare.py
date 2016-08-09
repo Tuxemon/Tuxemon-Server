@@ -35,8 +35,8 @@ as display resolution, scale, etc.
 import os
 import shutil
 
-from .components import config
-from .platform import get_config_path
+from tuxemon_server.core import config
+from tuxemon_server.core.platform import get_config_path
 
 
 # Get the tuxemon base directory
@@ -51,39 +51,22 @@ except OSError:
         raise
 
 # Create a copy of our default config if one does not exist in the home dir.
-CONFIG_FILE_PATH = CONFIG_PATH + "tuxemon.cfg"
+CONFIG_FILE_PATH = CONFIG_PATH + "server.cfg"
 if not os.path.isfile(CONFIG_FILE_PATH):
     try:
-        shutil.copyfile(BASEDIR + "tuxemon.cfg", CONFIG_FILE_PATH)
+        shutil.copyfile(BASEDIR + "server.cfg", CONFIG_FILE_PATH)
     except OSError:
         raise
 
 # Read the "tuxemon.cfg" configuration file
 CONFIG = config.Config(CONFIG_FILE_PATH)
-HEADLESSCONFIG = config.HeadlessConfig(CONFIG_FILE_PATH)
-
-# Set up the screen size and caption
-SCREEN_SIZE = CONFIG.resolution
-ORIGINAL_CAPTION = "Tuxemon"
 
 # Set the native tile size so we know how much to scale our maps
 TILE_SIZE = [16, 16]  # 1 tile = 16 pixels
 
-# Set the status icon size so we know how much to scale our menu icons
-ICON_SIZE = [7, 7]
-
 # Native resolution is similar to the old gameboy resolution. This is
 # used for scaling.
 NATIVE_RESOLUTION = [240, 160]
-
-# Set up the saves directory
-try:
-    os.makedirs(CONFIG_PATH + "saves/")
-except OSError:
-    if not os.path.isdir(CONFIG_PATH + "saves/"):
-        raise
-SAVE_PATH = CONFIG_PATH + "saves/slot"
-
 
 def init():
     """The init function is used to initialize all dependent
@@ -99,10 +82,7 @@ def init():
     """
 
     # initialize any platform-specific workarounds before pygame
-    from core import platform
+    from tuxemon_server.core import platform
     platform.init()
 
-    # Create an instance of the player and list of NPCs
-    from .components import player
-    player1 = player.Player()
 

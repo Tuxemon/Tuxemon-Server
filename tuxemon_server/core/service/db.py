@@ -29,134 +29,73 @@
 #
 #
 
-import json
 import logging
-import os
+from pymongo import MongoClient
 
-from core import prepare
+from tuxemon_server.core import prepare
 
 # Create a logger for optional handling of debug messages.
 logger = logging.getLogger(__name__)
 logger.debug("%s successfully imported" % __name__)
 
+# Read our database settings from our configuration file.
+mongo_user = prepare.CONFIG.mongodb_user
+mongo_pass = prepare.CONFIG.mongodb_pass
+mongo_host = prepare.CONFIG.mongodb_host
+mongo_port = prepare.CONFIG.mongodb_port
+mongo_ssl = prepare.CONFIG.mongodb_ssl
 
-class JSONDatabase(object):
-    """Handles connecting to the game database for resources such as monsters,
-    stats, etc.
+class MongoDB(object):
 
-    """
-
-    def __init__(self):
-        self.path = prepare.BASEDIR + "resources/db/"
-        self.database = {"item": {},
-                         "monster": {},
-                         "npc": {},
-                         "technique": {},
-                         "encounter": {}}
+    def __init__(self, db_name="tuxemon", username=None, password=None):
+        self.client = MongoClient(mongo_host, ssl=mongo_ssl, port=mongo_port)
+        self.db = self.client[db_name]
+        if mongo_user:
+            self.db.authenticate(mongo_user, mongo_pass)
 
 
-    def load(self, directory="all"):
-        """Loads all data from JSON files located under our data path.
+    def aggregate(self, collection_name, pipeline):
+        """Aggregate for colleciton_name using aggregation operations
 
-        :param directory: The directory under resources/db/ to load. Defaults
-            to "all".
-        :type directory: String
-
-        :returns: None
-
+        Args:
+            collection_name: The collection name from which you want to aggregate results
+            pipeline: Array of dictionary of pipeline operations you want to perform to get the result
         """
+        return getattr(self.db, collection_name).aggregate(pipeline, allowDiskUse=True)
 
-        if directory == "all":
-            self.load_json("item")
-            self.load_json("monster")
-            self.load_json("technique")
-            self.load_json("npc")
-            self.load_json("encounter")
+
+    def find_all(self, colleciton_name, query=None):
+        """Find all entries from a collection using a query
+
+        Args:
+            colleciton_name: The collection from which you want to get all entries from
+            query: A dictionary of keys and value for the query
+        """
+        return getattr(self.db, colleciton_name).find(query).batch_size(1000)
+
+
+    def find_one(self, colleciton_name, query=None):
+        """Find one and only one entry from a collection using a query
+
+        Args:
+            colleciton_name: The collection from which you want to get all entries from
+            query: A dictionary of keys and value for the query
+        """
+        return getattr(self.db, colleciton_name).find_one(query)
+
+
+    def count(self, collection_name, query=None):
+        return getattr(self.db, collection_name).find(query).count()
+
+
+    def drop(self, colleciton_name):
+        return self.db.drop_collection(colleciton_name)
+
+
+    def save(self, collection_name, data, db=None):
+        if db:
+            return getattr(self.client[db], collection_name).save(data)
         else:
-            self.load_json(directory)
+            return getattr(self.db, collection_name).save(data)
 
-
-    def load_json(self, directory):
-        """Loads all JSON items under a specified path.
-
-        :param directory: The directory under resources/db/ to look in.
-        :type directory: String
-
-        :returns: None
-
-        """
-
-        for json_item in os.listdir(self.path + directory):
-
-            # Only load .json files.
-            if not json_item.endswith(".json"):
-                continue
-
-            # Load our json as a dictionary.
-            file = open(self.path + directory + "/" + json_item, 'r')
-            item = json.load(file)
-
-            if item['id'] not in self.database[directory]:
-                self.database[directory][item['id']] = item
-            else:
-                print(item, json)
-                raise Exception("Error: Item with this id was already loaded.")
-            file.close()
-
-
-    def lookup(self, name, table="monster"):
-        """Looks up a monster, technique, item, or npc based on name or id.
-
-        :param name: The name of the monster, technique, item, or npc.
-        :param table: Which index to do the search in. Can be: "monster",
-            "item", "npc", or "technique".
-        :type name: String
-        :type table: String
-
-        :rtype: Dict
-        :returns: A dictionary from the resulting lookup.
-
-        """
-        if name in self.database[table]:
-            return self.database[table][name]
-
-        for id, item in self.database[table].items():
-            if item['name'] == name:
-                return item
-
-
-    def lookup_by_id(self, id, table="monster"):
-        """This is a legacy method from using the sqlite database. You should
-        do this instead by calling JSONDatabase.database["monster"][id]
-
-        :param id: The monster ID or technique ID to look up.
-        :type id: Integer
-
-        :rtype: List
-        :returns: A list of monsters or techniques
-
-        """
-        logger.warning("lookup_by_id is deprecated. Use JSONDatabase.database")
-        self.lookup(id, table)
-
-
-    def lookup_sprite(self, monster_id, table="sprite"):
-        """Looks up a monster's sprite image paths based on monster ID.
-        NOTE: This method has been deprecated. Use the following instead:
-        JSONDatabase.database['monster'][id]['sprites']
-
-        :param monster_id: The monster ID to look up.
-        :type monster_id: Integer
-
-        :rtype: List
-        :returns: A list of sprites
-
-        """
-
-        logger.warning("lookup_sprite is deprecated. Use JSONDatabase.database")
-        results = {'sprite_battle1': self.database['monster'][monster_id]['sprites']['battle1'],
-                   'sprite_battle2': self.database['monster'][monster_id]['sprites']['battle2'],
-                   'sprite_menu1': self.database['monster'][monster_id]['sprites']['menu1']}
-
-        return results
-
+client = MongoDB()

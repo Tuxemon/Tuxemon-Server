@@ -1,6 +1,12 @@
 from collections import namedtuple
 from tuxemon_server.core import controllers
+import logging
 
+# Create a logger for optional handling of debug messages.
+logger = logging.getLogger(__name__)
+logger.debug("%s successfully imported" % __name__)
+
+# Create an event object for parsed events.
 Event = namedtuple("Event", ["type", "target"])
 
 class EventPool(object):
@@ -8,6 +14,7 @@ class EventPool(object):
         self._event_handlers = {}
 
     def add_handler(self, event_type, handler):
+        logger.debug("Adding event handler for event type: {}".format(event_type))
         if event_type not in self._event_handlers:
             self._event_handlers[event_type] = []
         self._event_handlers[event_type].append(handler)
@@ -18,6 +25,7 @@ class EventPool(object):
             response = self.invoke_handlers(event)
         else:
             response = "Event type not supported: " + event.type
+            logger.error(response)
             print(response)
 
         return response

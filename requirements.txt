@@ -1,3 +1,3 @@
 pytmx>=3.20.14
 pymongo
-neteria
+websockets
