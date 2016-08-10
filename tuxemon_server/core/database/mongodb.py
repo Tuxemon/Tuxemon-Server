@@ -33,7 +33,6 @@ import logging
 from pymongo import MongoClient
 
 from tuxemon_server.core import database
-from tuxemon_server.core import prepare
 
 # Create a logger for optional handling of debug messages.
 logger = logging.getLogger(__name__)
@@ -48,47 +47,37 @@ class MongoDBDatabase(database.AbstractDatabase):
             self.db.authenticate(username, password)
 
 
-    def aggregate(self, collection_name, pipeline):
-        """Aggregate for colleciton_name using aggregation operations
-
-        Args:
-            collection_name: The collection name from which you want to aggregate results
-            pipeline: Array of dictionary of pipeline operations you want to perform to get the result
-        """
-        return getattr(self.db, collection_name).aggregate(pipeline, allowDiskUse=True)
-
-
-    def find_all(self, colleciton_name, query=None):
+    def find_all(self, collection_name, field, value):
         """Find all entries from a collection using a query
 
         Args:
             colleciton_name: The collection from which you want to get all entries from
             query: A dictionary of keys and value for the query
         """
-        return getattr(self.db, colleciton_name).find(query).batch_size(1000)
+        query = {field: value}
+        return getattr(self.db, collection_name).find(query).batch_size(1000)
 
 
-    def find_one(self, colleciton_name, query=None):
+    def find_one(self, collection_name, field, value):
         """Find one and only one entry from a collection using a query
 
         Args:
             colleciton_name: The collection from which you want to get all entries from
             query: A dictionary of keys and value for the query
         """
-        return getattr(self.db, colleciton_name).find_one(query)
+        query = {field: value}
+        return getattr(self.db, collection_name).find_one(query)
 
 
-    def count(self, collection_name, query=None):
+    def count(self, collection_name, field, value):
+        query = {field: value}
         return getattr(self.db, collection_name).find(query).count()
 
 
-    def drop(self, colleciton_name):
-        return self.db.drop_collection(colleciton_name)
+    def drop(self, collection_name):
+        return self.db.drop_collection(collection_name)
 
 
-    def save(self, collection_name, data, db=None):
-        if db:
-            return getattr(self.client[db], collection_name).save(data)
-        else:
-            return getattr(self.db, collection_name).save(data)
+    def save(self, collection_name, data):
+        return getattr(self.db, collection_name).save(data)
 

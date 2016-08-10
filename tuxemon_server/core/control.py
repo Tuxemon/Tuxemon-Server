@@ -32,6 +32,7 @@ from tuxemon_server.core import prepare
 from tuxemon_server.core import transport
 from tuxemon_server.core import parser
 from tuxemon_server.core import database
+from tuxemon_server.core import auth
 from tuxemon_server.core.game import Game
 from tuxemon_server.core.game.cli import CommandLine
 from tuxemon_server.core.tools import Clock
@@ -58,11 +59,14 @@ class Control(object):
                                 config.db_pass,
                                 config.db_ssl,
                                 config.db_database)
+        auth.configure(config.auth)
         parse = parser.configure(config.parser)
-        self.transport = transport.configure(config.transport,
-                                             parse,
-                                             config.listen_address,
-                                             config.listen_port)
+        trans = transport.configure(config.transport,
+                                    parse,
+                                    config.listen_address,
+                                    config.listen_port)
+
+        self.transport = trans
 
     def main_loop(self):
         dt = self.clock.tick()

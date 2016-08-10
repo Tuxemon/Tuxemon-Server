@@ -62,6 +62,9 @@ class Config(object):
         # Parser Configuration
         self.parser = self.config.get("parser", "provider")
 
+        # User Auth Configuration
+        self.auth = self.config.get("auth", "provider")
+
         # Database Configuration
         self.db_provider = self.config.get("database", "provider")
         self.db_user = self.config.get("database", "username")

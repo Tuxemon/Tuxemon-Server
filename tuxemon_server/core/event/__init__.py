@@ -45,5 +45,5 @@ class EventPool(object):
 event_pool = EventPool()
 
 # Get all controllers and add them as a handler for the shared event pool.
-for name, handler in controllers.all_controllers.items():
-    event_pool.add_handler(handler.name, handler)
+for event_type, handler in controllers.all_controllers.items():
+    event_pool.add_handler(event_type, handler)

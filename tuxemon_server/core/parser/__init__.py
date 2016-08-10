@@ -20,7 +20,7 @@ modules = []
 # All supported parsers
 module_suffix = "Parser"
 all_parsers = {}
-Parser = None
+Provider = None
 
 for module_name in __all__:
     m = importlib.import_module(__name__ + "." + module_name)
@@ -33,8 +33,8 @@ for module_name in __all__:
 def configure(provider):
     """Configures and returns the specified parser.
     """
-    global Parser
+    global Provider
     parser = all_parsers[provider.lower() + module_suffix.lower()]
     parser.configure()
-    Parser = parser
+    Provider = parser
     return parser

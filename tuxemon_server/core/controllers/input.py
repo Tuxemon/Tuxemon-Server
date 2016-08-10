@@ -2,7 +2,7 @@
 
 class MoveHandler(object):
     def __init__(self):
-        self.name = "MOVE"
+        self.event_type = "MOVE"
 
     def invoke(self, event):
         pass

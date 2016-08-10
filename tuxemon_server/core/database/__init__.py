@@ -2,24 +2,14 @@ import inspect
 import importlib
 
 # Database modules to import
-__all__ = ("mongodb",)
+__all__ = ("mongodb", "sqlite")
 
 # All database providers should follow this protocol.
 class AbstractDatabase(object):
-
     def configure(self, host, port, username, password, ssl, db_name):
         pass
 
-    def aggregate(self, collection_name, pipeline):
-        """Aggregate for colleciton_name using aggregation operations
-
-        Args:
-            collection_name: The collection name from which you want to aggregate results
-            pipeline: Array of dictionary of pipeline operations you want to perform to get the result
-        """
-        pass
-
-    def find_all(self, colleciton_name, query=None):
+    def find_all(self, collection_name, field, value):
         """Find all entries from a collection using a query
 
         Args:
@@ -29,7 +19,7 @@ class AbstractDatabase(object):
         pass
 
 
-    def find_one(self, colleciton_name, query=None):
+    def find_one(self, collection_name, field, value):
         """Find one and only one entry from a collection using a query
 
         Args:
@@ -39,24 +29,23 @@ class AbstractDatabase(object):
         pass
 
 
-    def count(self, collection_name, query=None):
+    def count(self, collection_name, field, value):
         pass
 
 
-    def drop(self, colleciton_name):
+    def drop(self, collection_name):
         pass
 
-
-    def save(self, collection_name, data, db=None):
+    def save(self, collection_name, data):
         pass
 
 
 modules = []
 
 # All supported databases
-module_suffix = "database"
+module_suffix = "Database"
 all_databases = {}
-Database = None
+Provider = None
 
 for module_name in __all__:
     m = importlib.import_module(__name__ + "." + module_name)
@@ -69,10 +58,10 @@ for module_name in __all__:
 def configure(provider, host, port, username, password, ssl, db_name):
     """Configures and returns the specified database.
     """
-    global Database
+    global Provider
     database = all_databases[provider.lower() + module_suffix.lower()]
     database.configure(host, port, username, password, ssl, db_name)
-    Database = database
+    Provider = database
 
     return database
 

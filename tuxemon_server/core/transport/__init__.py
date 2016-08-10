@@ -20,7 +20,7 @@ modules = []
 # All supported transports
 module_suffix = "Transport"
 all_transports = {}
-Transport = None
+Provider = None
 
 for module_name in __all__:
     print(__name__ + "." + module_name)
@@ -34,10 +34,10 @@ for module_name in __all__:
 def configure(provider, parser, address, port):
     """Configures and returns the specified transport.
     """
-    global Transport
+    global Provider
     transport = all_transports[provider.lower() + module_suffix.lower()]
     transport.configure(parser, address, port)
-    Transport = transport
+    Provider = transport
 
     return transport
 

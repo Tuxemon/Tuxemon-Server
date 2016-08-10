@@ -4,10 +4,29 @@ import importlib
 # Controller modules to import
 __all__ = ("event", "input", "register")
 
-modules = []
+# All controllers/handlers should implement this protocol.
+class AbstractHandler(object):
+    def __init__(self):
+        self.event_type = "EVENT_TYPE"
+        self.required_fields = []
 
-# All functions: {'test_event': <function test_event at 0x7ffa60d0da28>,
-#                 'move_player': <function move_player at 0x7ffa60d0daa0>}
+    def _has_required_fields(self, event):
+        """Verifies that the given event has the required fields for this handler.
+        """
+        has_fields = True
+        for field in self.required_fields:
+            if field not in event.target.keys():
+                has_fields = False
+
+        return has_fields
+
+
+    def invoke(self, event):
+        """Invoke should return a response to the event.
+        """
+        pass
+
+modules = []
 all_controllers = {}
 
 for module_name in __all__:
@@ -16,11 +35,6 @@ for module_name in __all__:
     handlers = [obj for obj in m.__dict__.values() if inspect.isclass(obj)]
     for h in handlers:
         handler = h()
-        all_controllers[handler.name] = handler
+        if "event_type" in handler.__dict__:
+            all_controllers[handler.event_type] = handler
 
-class AbstractHandler(object):
-    def __init__(self):
-        self.name = "EVENT_TYPE"
-
-    def invoke(self, event):
-        pass
