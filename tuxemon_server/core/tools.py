@@ -61,8 +61,8 @@ def hash_password(password):
     use its method of salting and hashing passwords for storage.
     """
     if bcrypt:
-        return _bcrypt_hash_password(password)
-    return _sha_salt_hash_password(password)
+        return _bcrypt_hash_password(password.encode('utf-8'))
+    return _sha_salt_hash_password(password.encode('utf-8'))
 
 def _bcrypt_hash_password(password):
     """Hashes and salts a given string using bcrypt.
@@ -76,8 +76,8 @@ def _sha_salt_hash_password(password, salt=None):
     """Hashes and salts a given string using sha512 and uuid salts.
     """
     if not salt:
-        salt = generate_id().hex
-    password_hash = hashlib.sha512(password + salt).hexdigest()
+        salt = generate_id().hex.encode('utf-8')
+    password_hash = hashlib.sha512(password + salt).hexdigest().encode('utf-8')
 
     # Prepend the salt to the password hash so we can use it for verification.
     # The salt is the first 32 characters of the string for uuid4.
@@ -90,8 +90,8 @@ def verify_password(password, stored_hash):
     If bcrypt is installed it will use its method of salting and hashing passwords for storage.
     """
     if bcrypt:
-        return _bcrypt_verify_password(password, stored_hash)
-    return _sha_salt_verify_password(password, stored_hash)
+        return _bcrypt_verify_password(password.encode('utf-8'), stored_hash)
+    return _sha_salt_verify_password(password.encode('utf-8'), stored_hash)
 
 def _bcrypt_verify_password(password, stored_hash):
     """Verifies a password against a stored salted hash using bcrypt.

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Tuxemon Server
@@ -29,10 +29,6 @@
 #
 
 from tuxemon_server.core.control import Control
-import logging
-
-logger = logging.getLogger('neteria.server')
-logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
     game = Control()

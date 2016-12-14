@@ -22,7 +22,7 @@ module_suffix = "Parser"
 all_parsers = {}
 Provider = None
 
-for module_name in __all__:
+def import_module(module_name):
     m = importlib.import_module(__name__ + "." + module_name)
     modules.append(m)
     parsers = [obj for obj in m.__dict__.values() if inspect.isclass(obj)]
@@ -34,6 +34,7 @@ def configure(provider):
     """Configures and returns the specified parser.
     """
     global Provider
+    import_module(provider.lower())
     parser = all_parsers[provider.lower() + module_suffix.lower()]
     parser.configure()
     Provider = parser

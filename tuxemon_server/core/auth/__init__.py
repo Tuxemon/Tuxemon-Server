@@ -1,46 +1,32 @@
 import inspect
 import importlib
 
-# Database modules to import
-__all__ = ("token",)
-
-# Used to call the configured auth.
-def ProviderAnonymousAccess(func):
-    def wrapper(self, event):
-        global AnonymousAccess
-        func(self, AnonymousAccess(self, event))
-    return wrapper
-
-# Used to call the configured auth.
-def ProviderAuthenticatedAccess(func):
-    def wrapper(self, event):
-        global AuthenticatedAccess
-        func(self, AnonymousAccess(self, event))
-    return wrapper
-
-
 modules = []
 
-# All supported databases
-anonymous_suffix = "AnonymousAccess"
-authenticated_suffix = "AuthenticatedAccess"
-AnonymousAccess = ProviderAnonymousAccess
-AuthenticatedAccess = ProviderAuthenticatedAccess
-all_auth_methods = {}
+module_suffix = "Auth"
+all_auth = {}
+Provider = None
 
-for module_name in __all__:
+def import_module(module_name):
+    """Imports an auth plugin module
+    """
+    print(__name__ + "." + module_name)
     m = importlib.import_module(__name__ + "." + module_name)
     modules.append(m)
-    functions = [func for func in m.__dict__.values() if inspect.isfunction(func)]
-    for func in functions:
-        all_auth_methods[func.__name__.lower()] = func
+    auths = [obj for obj in m.__dict__.values() if inspect.isclass(obj)]
+    for a in auths:
+        auth = a()
+        all_auth[a.__name__.lower()] = auth
 
 def configure(provider):
-    """Configures and returns the specified database.
+    """Configures and returns the specified transport.
     """
-    global AnonymousAccess
-    global AuthenticatedAccess
-    print("Using provider:", provider)
-    AnonymousAccess = all_auth_methods[provider.lower() + anonymous_suffix.lower()]
-    AuthenticatedAccess = all_auth_methods[provider.lower() + authenticated_suffix.lower()]
+    global Provider
+    import_module(provider.lower())
+    auth = all_auth[provider.lower() + module_suffix.lower()]
+    auth.configure()
+    Provider = auth
+
+    return auth
+
 

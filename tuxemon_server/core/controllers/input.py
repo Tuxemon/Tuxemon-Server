@@ -5,5 +5,9 @@ class MoveHandler(object):
         self.event_type = "MOVE"
 
     def invoke(self, event):
-        pass
+        result = None
+        warning = None
+        error = None
+
+        return result, warning, error
 

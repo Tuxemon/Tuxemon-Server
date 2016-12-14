@@ -47,7 +47,7 @@ module_suffix = "Database"
 all_databases = {}
 Provider = None
 
-for module_name in __all__:
+def import_module(module_name):
     m = importlib.import_module(__name__ + "." + module_name)
     modules.append(m)
     dbs = [obj for obj in m.__dict__.values() if inspect.isclass(obj)]
@@ -59,6 +59,7 @@ def configure(provider, host, port, username, password, ssl, db_name):
     """Configures and returns the specified database.
     """
     global Provider
+    import_module(provider.lower())
     database = all_databases[provider.lower() + module_suffix.lower()]
     database.configure(host, port, username, password, ssl, db_name)
     Provider = database

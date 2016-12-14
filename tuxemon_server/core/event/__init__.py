@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.debug("%s successfully imported" % __name__)
 
 # Create an event object for parsed events.
-Event = namedtuple("Event", ["type", "target"])
+Event = namedtuple("Event", ["type", "target", "source"])
 
 class EventPool(object):
     def __init__(self):
@@ -20,24 +20,23 @@ class EventPool(object):
         self._event_handlers[event_type].append(handler)
 
     def dispatch(self, event):
-        response = ""
+        response = {"results": [], "warnings": [], "errors": []}
         if event.type in self._event_handlers:
             response = self.invoke_handlers(event)
         else:
-            response = "Event type not supported: " + event.type
+            response["errors"].append("Event type not supported: {}".format(event.type))
             logger.error(response)
-            print(response)
 
         return response
 
     def invoke_handlers(self, event):
-        response = ""
-        # TODO: We need to handle multiple responses from all handlers for an
-        # event.
+        response = {"results": [], "errors": [], "warnings": []}
+        print(self._event_handlers)
         for event_handler in self._event_handlers[event.type]:
-            handler_response = event_handler.invoke(event)
-            if handler_response:
-                response += handler_response
+            result, warning, error = event_handler.invoke(event)
+            response["results"].append(result)
+            response["warnings"].append(warning)
+            response["errors"].append(error)
 
         return response
 

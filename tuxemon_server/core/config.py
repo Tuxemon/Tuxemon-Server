@@ -38,9 +38,10 @@ class Config(object):
     """Handles loading of the configuration file.
 
     """
-    def __init__(self, file="server.cfg"):
+    def __init__(self, config_path="server.cfg"):
         self.config = configparser.ConfigParser()
-        self.config.read(file)
+        self.config.read(config_path)
+        print(config_path)
 
         # Game configuration
         self.starting_map = self.config.get("game", "starting_map")
@@ -73,5 +74,3 @@ class Config(object):
         self.db_host = self.config.get("database", "host")
         self.db_ssl = self.config.getboolean("database", "ssl")
         self.db_database = self.config.get("database", "database")
-
-

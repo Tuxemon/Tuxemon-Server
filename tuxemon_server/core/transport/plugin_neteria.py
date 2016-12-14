@@ -28,42 +28,29 @@
 # core.network Networking related module
 #
 
-import asyncio
-import websockets
-from tuxemon_server.core import transport
+import logging
+import neteria.server
+import neteria.tools
+from tuxemon_server.core.transport import abstract_transport
 from tuxemon_server.core import event
 
-class WebsocketsTransport(transport.AbstractTransport):
+# Create a logger for optional handling of debug messages.
+logger = logging.getLogger(__name__)
+logger.debug("%s successfully imported" % __name__)
+
+class NeteriaTransport(abstract_transport.AbstractTransport):
     def __init__(self):
+        self._middleware = neteria.tools._Middleware(self)
         self._server = None
         self._connected = set()
 
     def configure(self, parser, host='localhost', port=8765):
-        self._server = websockets.serve(self.handler, host, port)
+        self._server = neteria.server.NeteriaServer(self._middleware, server_address=host,
+                                                    server_port=int(port))
         self._parser = parser
 
     def listen(self):
-        asyncio.get_event_loop().run_until_complete(self._server)
-        asyncio.get_event_loop().run_forever()
-
-    async def handler(self, websocket, path):
-        # Register.
-        self._connected.add(websocket)
-        try:
-            data = await websocket.recv()
-            parsed_data = self._parser.parse(data)
-            if parsed_data:
-                print("Data successfully parsed!")
-                response = event.event_pool.dispatch(parsed_data)
-                await websocket.send(response)
-            else:
-                await websocket.send("Malformed client event: " + str(data))
-        finally:
-            # Unregister.
-            self._connected.remove(websocket)
-
-    def handle_event(self, event):
-        return event.event_pool.dispatch(event)
+        self._server.listen()
 
 
 if __name__ == "__main__":
